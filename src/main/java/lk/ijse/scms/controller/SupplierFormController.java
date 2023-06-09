@@ -131,7 +131,7 @@ public class SupplierFormController implements Initializable {
         SupplierDTO supplierDTO = new SupplierDTO(txtId.getText(), txtName.getText(), txtAddress.getText(), txtEmail.getText(), txtContactNo.getText());
         try {
             Connection connection = DBConnection.getInstance().getConnection();
-            PreparedStatement pstm = connection.prepareStatement("INSERT INTO Supplier " + "VALUE (?,?,?,?,?)");
+            PreparedStatement pstm = connection.prepareStatement("INSERT INTO Supplier VALUE (?,?,?,?,?)");
             pstm.setString(1,supplierDTO.getSupplier_id());
             pstm.setString(2,supplierDTO.getSupplier_name());
             pstm.setString(3,supplierDTO.getAddress());

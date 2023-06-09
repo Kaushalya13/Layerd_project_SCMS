@@ -269,7 +269,7 @@ public class VehicleFormController implements Initializable {
     private void setReturned(String id) {
             try {
                 Connection connection = DBConnection.getInstance().getConnection();
-                PreparedStatement pstm = connection.prepareStatement("UPDATE Vehicle SET " + "status = ? WHERE vehicle_id = ?");
+                PreparedStatement pstm = connection.prepareStatement("UPDATE Vehicle SET status = ? WHERE vehicle_id = ?");
 
                 pstm.setString(1,"Returned");
                 pstm.setString(2,id);
