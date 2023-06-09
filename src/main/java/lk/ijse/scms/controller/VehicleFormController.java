@@ -241,9 +241,6 @@ public class VehicleFormController implements Initializable {
         customer_id = (String) cmbCustomer_id.getValue();
         try {
             CustomerDTO customerDTO = CustomerModel.search(customer_id);
-            /*txtName.setText(customerDTO.getCustName());
-            txtSupplierCompany.setText(supplier.getSupplier_company());
-            txtId.setText(customer_id);*/
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
@@ -253,9 +250,6 @@ public class VehicleFormController implements Initializable {
         company_id = (String) cmbCompany_id.getValue();
         try {
             CompanyDTO companyDTO = CompanyModel.search(company_id);
-            /*txtName.setText(customerDTO.getCustName());
-            txtSupplierCompany.setText(supplier.getSupplier_company());
-            txtId.setText(company_id);*/
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
