@@ -104,7 +104,7 @@ public class CompanyFormController implements Initializable {
         CompanyDTO companyDTO = new CompanyDTO(txtId.getText(),(String) cmbCompany_name.getValue(), (String) cmbType.getValue());
         try {
             Connection connection = DBConnection.getInstance().getConnection();
-            PreparedStatement pstm = connection.prepareStatement("INSERT INTO Company " + "VALUE (?,?,?)");
+            PreparedStatement pstm = connection.prepareStatement("INSERT INTO Company VALUE (?,?,?)");
             pstm.setString(1,companyDTO.getCompany_id());
             pstm.setString(2,companyDTO.getCompany_name());
             pstm.setString(3,companyDTO.getCompany_type());
