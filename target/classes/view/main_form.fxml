@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXTextField?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane prefHeight="775.0" prefWidth="1500.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="lk.ijse.scms.controller.MainFormController">
+   <children>
+      <AnchorPane fx:id="loadFormContext" layoutX="241.0" layoutY="120.0" prefHeight="655.0" prefWidth="1261.0" />
+      <AnchorPane layoutX="-1.0" layoutY="120.0" prefHeight="655.0" prefWidth="236.0" styleClass="linear-square1" stylesheets="@../style/Style.css">
+         <children>
+            <JFXButton alignment="TOP_LEFT" layoutX="-1.0" layoutY="49.0" onAction="#btnDashboradOnAction" prefHeight="60.0" prefWidth="240.0" ripplerFill="BLACK" text="      DashBorad" textFill="WHITE">
+               <font>
+                  <Font name="Arial Narrow" size="20.0" />
+               </font>
+               <graphic>
+                  <ImageView fitHeight="46.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../../../../../../../Final%20Project/images/icons8-dashboard-64.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </JFXButton>
+            <JFXButton alignment="TOP_LEFT" layoutX="-1.0" layoutY="300.0" onAction="#btnCustomerOnAction" prefHeight="60.0" prefWidth="240.0" ripplerFill="BLACK" text="      Customer" textFill="#fcfafa">
+               <font>
+                  <Font name="Arial Narrow" size="20.0" />
+               </font>
+               <graphic>
+                  <ImageView fitHeight="46.0" fitWidth="46.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../../../../../../../Final%20Project/images/icons8-customer-64.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </JFXButton>
+            <JFXButton alignment="TOP_LEFT" layoutX="1.0" layoutY="355.0" onAction="#btnItemOnAction" prefHeight="60.0" prefWidth="240.0" ripplerFill="BLACK" text="          Item" textFill="WHITE">
+               <font>
+                  <Font name="Arial Narrow" size="20.0" />
+               </font>
+               <graphic>
+                  <ImageView fitHeight="46.0" fitWidth="46.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../../../../../../../Final%20Project/images/icons8-packing-96.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </JFXButton>
+            <JFXButton alignment="TOP_LEFT" layoutX="-1.0" layoutY="415.0" onAction="#btnSupplierOnAction" prefHeight="60.0" prefWidth="240.0" ripplerFill="BLACK" text="       Supplier" textFill="WHITE">
+               <font>
+                  <Font name="Arial Narrow" size="20.0" />
+               </font>
+               <graphic>
+                  <ImageView fitHeight="46.0" fitWidth="46.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../../../../../../../Final%20Project/images/icons8-supplier-64.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </JFXButton>
+            <JFXButton alignment="TOP_LEFT" layoutY="475.0" onAction="#btnCompanyOnAction" prefHeight="60.0" prefWidth="240.0" ripplerFill="BLACK" text="     Company" textFill="WHITE">
+               <font>
+                  <Font name="Arial Narrow" size="20.0" />
+               </font>
+               <graphic>
+                  <ImageView fitHeight="53.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../../../../../../../Final%20Project/images/icons8-company-64.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </JFXButton>
+            <JFXButton alignment="TOP_LEFT" layoutY="241.0" onAction="#btnEmployeeOnAction" prefHeight="60.0" prefWidth="240.0" ripplerFill="BLACK" text="      Employee" textFill="WHITE">
+               <font>
+                  <Font name="Arial Narrow" size="20.0" />
+               </font>
+               <graphic>
+                  <ImageView fitHeight="46.0" fitWidth="46.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../../../../../../../Final%20Project/images/icons8-employee-64.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </JFXButton>
+            <JFXButton alignment="TOP_LEFT" layoutX="1.0" layoutY="182.0" onAction="#btnVehicleOnAction" prefHeight="60.0" prefWidth="240.0" ripplerFill="BLACK" text="        Vehicle" textFill="WHITE">
+               <font>
+                  <Font name="Arial Narrow" size="20.0" />
+               </font>
+               <graphic>
+                  <ImageView fitHeight="46.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../../../../../../../Final%20Project/images/icons8-vehicle-64.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </JFXButton>
+            <JFXButton alignment="TOP_LEFT" layoutX="-1.0" layoutY="122.0" onAction="#btnUserOnAction" prefHeight="60.0" prefWidth="240.0" ripplerFill="BLACK" text="          User" textFill="#fffefe">
+               <font>
+                  <Font name="Arial Narrow" size="20.0" />
+               </font>
+               <graphic>
+                  <ImageView fitHeight="46.0" fitWidth="55.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../../../../../../../Final%20Project/images/icons8-user-64.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </JFXButton>
+            <JFXButton alignment="TOP_LEFT" layoutX="-1.0" layoutY="544.0" onAction="#btnPlaceOrderOnAction" prefHeight="60.0" prefWidth="240.0" ripplerFill="BLACK" text="      Place Order" textFill="WHITE">
+               <font>
+                  <Font name="Arial Narrow" size="20.0" />
+               </font>
+               <graphic>
+                  <ImageView fitHeight="39.0" fitWidth="53.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../../../../../../../Final%20Project/images/icons8-shopping-cart-50.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </JFXButton>
+         </children>
+         <effect>
+            <DropShadow color="#eec3c3" />
+         </effect>
+      </AnchorPane>
+      <ImageView fitHeight="38.0" fitWidth="50.0" layoutX="249.0" layoutY="33.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../../../../../../../Final%20Project/images/icons8-menu-rounded-50.png" />
+         </image>
+      </ImageView>
+      <ImageView fitHeight="31.0" fitWidth="26.0" layoutX="298.0" layoutY="39.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../../../../../../../Final%20Project/images/icons8-search-25.png" />
+         </image>
+      </ImageView>
+      <Text layoutX="61.0" layoutY="61.0" strokeType="OUTSIDE" strokeWidth="0.0" text="          SCMS" wrappingWidth="117.6708984375">
+         <font>
+            <Font size="22.0" />
+         </font>
+      </Text>
+      <ImageView fitHeight="67.0" fitWidth="69.0" layoutX="18.0" layoutY="22.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../../../../../../../Final%20Project/images/icons8-shazam-100%20(1).png" />
+         </image>
+      </ImageView>
+      <Label fx:id="lblDate" layoutX="1148.0" layoutY="32.0" prefHeight="38.0" prefWidth="205.0" text="      dd/mm/yyyy">
+         <font>
+            <Font size="20.0" />
+         </font>
+         <graphic>
+            <ImageView fitHeight="38.0" fitWidth="57.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../../../../../../../Final%20Project/images/icons8-calendar-50.png" />
+               </image>
+            </ImageView>
+         </graphic>
+      </Label>
+      <JFXTextField layoutX="344.0" layoutY="36.0" prefHeight="31.0" prefWidth="280.0" promptText="Search here" style="-fx-border-color: blue;" />
+      <Label fx:id="lblTime" layoutX="885.0" layoutY="32.0" prefHeight="38.0" prefWidth="205.0" text="     HH:mm:ss">
+         <font>
+            <Font size="20.0" />
+         </font>
+         <graphic>
+            <ImageView fitHeight="38.0" fitWidth="57.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../../../../../../../Final%20Project/images/icons8-time-100.png" />
+               </image>
+            </ImageView>
+         </graphic>
+      </Label>
+      <ImageView fitHeight="52.0" fitWidth="60.0" layoutX="1407.0" layoutY="25.0" onMouseClicked="#imgLogoutOnAction" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../../../../../../../Final%20Project/images/icons8-logout-rounded-64.png" />
+         </image>
+      </ImageView>
+   </children>
+</AnchorPane>
