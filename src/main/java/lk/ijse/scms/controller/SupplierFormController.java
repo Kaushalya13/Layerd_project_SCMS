@@ -179,6 +179,7 @@ public class SupplierFormController implements Initializable {
         } catch (SQLException | ClassNotFoundException throwables) {
             throwables.printStackTrace();
         }
+        txtSearch.setText("");
     }
 
     private void fillDate(SupplierDTO supplierDTO) {

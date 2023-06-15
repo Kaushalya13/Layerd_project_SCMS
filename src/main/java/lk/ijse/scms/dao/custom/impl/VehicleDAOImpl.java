@@ -70,7 +70,13 @@ public class VehicleDAOImpl implements VehicleDAO {
 
     @Override
     public ArrayList<String> loadCompanyId() throws SQLException {
-        return null;
+        ArrayList<String> allCompany = new ArrayList<>();
+        ResultSet rst = CrudUtil.execute("SELECT company_id FROM Company");
+        while (rst.next()){
+            String id = new String(rst.getString("company_id"));
+            allCompany.add(id);
+        }
+        return allCompany;
     }
 
 //    @Override

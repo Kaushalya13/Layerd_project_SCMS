@@ -108,9 +108,8 @@ public class VehicleFormController implements Initializable {
 
     VehicleBO vehicleBO = (VehicleBO) BOFactory.getBoFactory().getBO(BOFactory.BOTypes.VEHICLE);
 
-    CompanyDAO companyDAO = (CompanyDAO) DAOFactory.getDaoFactory().getDAO(DAOFactory.DAOTypes.COMPANY);
+    VehicleDAO vehicleDAO = (VehicleDAO) DAOFactory.getDaoFactory().getDAO(DAOFactory.DAOTypes.VEHICLE);
 
-    CustomerDAO customerDAO = (CustomerDAO) DAOFactory.getDaoFactory().getDAO(DAOFactory.DAOTypes.CUSTOMER);
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -139,18 +138,18 @@ public class VehicleFormController implements Initializable {
 
     void loadCompanyId() throws SQLException {
         ObservableList<String> list = FXCollections.observableArrayList();
-        companyDTOArrayList= CompanyModel.View();
-        for (CompanyDTO companyDTO :companyDTOArrayList){
-            list.add(companyDTO.getCompany_id());
+        List<String> companyId= vehicleDAO.loadCompanyId();
+        for (String c : companyId){
+            list.add(c);
         }
         cmbCompany_id.setItems(list);
     }
 
     void loadComboBox() throws SQLException {
         ObservableList<String> list = FXCollections.observableArrayList();
-        customerDTOArrayList= CustomerModel.View();
-        for (CustomerDTO customerDTO:customerDTOArrayList) {
-            list.add(customerDTO.getCustId());
+        List<String> customerId = vehicleDAO.loadComboBox();
+        for (String a : customerId) {
+            list.add(a);
         }
         cmbCustomer_id.setItems(list);
     }
@@ -200,7 +199,6 @@ public class VehicleFormController implements Initializable {
         String returndate=ReturnDate.getValue().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
         VehicleDTO vehicleDTO = new VehicleDTO(txtId.getText(), (String) cmbVehicle_name.getValue(),(String) cmbType.getValue(),(String) cmbCustomer_id.getValue(),(String) cmbCompany_id.getValue(),date,returndate,"Active");
-
 
         if(vehicleBO.addVehicle(vehicleDTO)){
             new Alert(Alert.AlertType.CONFIRMATION,"Saved", ButtonType.OK).show();

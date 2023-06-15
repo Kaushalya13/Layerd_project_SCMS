@@ -146,6 +146,7 @@ public class CompanyFormController implements Initializable {
         } catch (SQLException | ClassNotFoundException throwables) {
             throwables.printStackTrace();
         }
+        txtSearch.setText("");
     }
 
     private void fillDate(CompanyDTO companyDTO) {

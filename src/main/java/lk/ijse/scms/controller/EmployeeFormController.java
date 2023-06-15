@@ -184,6 +184,7 @@ public class EmployeeFormController implements Initializable {
         } catch (SQLException | ClassNotFoundException throwables) {
             throwables.printStackTrace();
         }
+        txtSearch.setText("");
     }
 
     private void fillDate(EmployeeDTO employeeDTO) {
