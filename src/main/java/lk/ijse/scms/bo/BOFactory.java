@@ -1,7 +1,6 @@
 package lk.ijse.scms.bo;
 
-import lk.ijse.scms.bo.custom.impl.UserBOImpl;
-import lk.ijse.scms.bo.custom.impl.VehicleBOImpl;
+import lk.ijse.scms.bo.custom.impl.*;
 
 public class BOFactory {
     private static BOFactory boFactory;
@@ -12,7 +11,7 @@ public class BOFactory {
     }
 
     public enum BOTypes{
-        USER,VEHICLE
+        USER,VEHICLE,EMPLOYEE,CUSTOMER,ITEM,SUPPLIER,COMPANY
     }
 
     //Object creation logic for BO objects
@@ -22,8 +21,16 @@ public class BOFactory {
                 return new UserBOImpl();
             case VEHICLE:
                 return new VehicleBOImpl();
-//            case PO:
-//                return new PurchaseOrderBOImpl();
+            case EMPLOYEE:
+                return new EmployeeBOImpl();
+            case CUSTOMER:
+                return new CustomerBOImpl();
+            case ITEM:
+                return new ItemBOImpl();
+            case SUPPLIER:
+                return new SupplierBOImpl();
+            case COMPANY:
+                return new CompanyBOImpl();
             default:
                 return null;
         }

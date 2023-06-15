@@ -1,7 +1,6 @@
 package lk.ijse.scms.dao;
 
-import lk.ijse.scms.dao.custom.impl.UserDAOImpl;
-import lk.ijse.scms.dao.custom.impl.VehicleDAOImpl;
+import lk.ijse.scms.dao.custom.impl.*;
 
 public class DAOFactory {
     private static DAOFactory daoFactory;
@@ -14,7 +13,7 @@ public class DAOFactory {
     }
 
     public enum DAOTypes {
-        USER,VEHICLE
+        USER,VEHICLE,EMPLOYEE,CUSTOMER,ITEM,SUPPLIER,COMPANY
     }
 
     public SuperDAO getDAO(DAOTypes types){
@@ -23,12 +22,16 @@ public class DAOFactory {
                 return new UserDAOImpl();
             case VEHICLE:
                 return new VehicleDAOImpl();
-//            case ORDER:
-//                return new OrderDAOImpl();
-//            case ORDER_DETAILS:
-//                return new OrderDetailsDAOImpl();
-//            case QUERY_DAO:
-//                return new QueryDAOImpl();
+            case EMPLOYEE:
+                return new EmployeeDAOImpl();
+            case CUSTOMER:
+                return new CustomerDAOImpl();
+            case ITEM:
+                return new ItemDAOImpl();
+            case SUPPLIER:
+                return new SupplierDAOImpl();
+            case COMPANY:
+                return new CompanyDAOImpl();
             default:
                 return null;
         }

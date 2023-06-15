@@ -9,6 +9,8 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
+import lk.ijse.scms.bo.BOFactory;
+import lk.ijse.scms.bo.custom.CompanyBO;
 import lk.ijse.scms.db.DBConnection;
 import lk.ijse.scms.dto.CompanyDTO;
 import lk.ijse.scms.dto.tm.CompanyTM;
@@ -27,8 +29,8 @@ public class CompanyFormController implements Initializable {
     private final static Properties props = new Properties();
 
     static {
-        props.setProperty("user","root");
-        props.setProperty("password","1234");
+        props.setProperty("user", "root");
+        props.setProperty("password", "1234");
     }
 
     @FXML
@@ -58,23 +60,27 @@ public class CompanyFormController implements Initializable {
 
     public AnchorPane loadFormContext;
 
+    CompanyBO companyBO = (CompanyBO) BOFactory.getBoFactory().getBO(BOFactory.BOTypes.COMPANY);
+
     @Override
     public void initialize(java.net.URL location, ResourceBundle resources) {
-        ObservableList<String> list = FXCollections.observableArrayList("Ranathunga Motors","Mihiri Motors","Other Company");
+        ObservableList<String> list = FXCollections.observableArrayList("Ranathunga Motors", "Mihiri Motors", "Other Company");
         cmbCompany_name.setItems(list);
 
-        ObservableList<String> list1 = FXCollections.observableArrayList("First Service","Second Service","Other Service");
+        ObservableList<String> list1 = FXCollections.observableArrayList("First Service", "Second Service", "Other Service");
         cmbType.setItems(list1);
 
         clearAll();
         getAll();
         setCellValueFactory();
     }
+
     void clearAll() {
         txtId.setText(null);
         cmbCompany_name.setValue(null);
         cmbType.setValue(null);
     }
+
     void setCellValueFactory() {
         colCompany_id.setCellValueFactory(new PropertyValueFactory<>("company_id"));
         colCompany_name.setCellValueFactory(new PropertyValueFactory<>("company_name"));
@@ -82,106 +88,69 @@ public class CompanyFormController implements Initializable {
     }
 
     void getAll() {
+        tblCompany.getItems().clear();
         try {
-            ObservableList<CompanyTM> obList = FXCollections.observableArrayList();
-            List<CompanyDTO> companyDTOList = CompanyModel.getAll();
+            List<CompanyDTO> companyDTOList = companyBO.getAllCompany();
 
-            for (CompanyDTO companyDTO : companyDTOList){
-                obList.add(new CompanyTM(
-                        companyDTO.getCompany_id(),
-                        companyDTO.getCompany_name(),
-                        companyDTO.getCompany_type()
-                ));
+            for (CompanyDTO companyDTO : companyDTOList) {
+                tblCompany.getItems().add(new CompanyTM(companyDTO.getCompany_id(), companyDTO.getCompany_name(), companyDTO.getCompany_type()));
             }
-            tblCompany.setItems(obList);
 
-        } catch (SQLException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             new Alert(Alert.AlertType.ERROR, "Query error!").show();
         }
     }
 
-    public void btnSaveOnAction(ActionEvent actionEvent) {
-        CompanyDTO companyDTO = new CompanyDTO(txtId.getText(),(String) cmbCompany_name.getValue(), (String) cmbType.getValue());
-        try {
-            Connection connection = DBConnection.getInstance().getConnection();
-            PreparedStatement pstm = connection.prepareStatement("INSERT INTO Company VALUE (?,?,?)");
-            pstm.setString(1,companyDTO.getCompany_id());
-            pstm.setString(2,companyDTO.getCompany_name());
-            pstm.setString(3,companyDTO.getCompany_type());
-
-            int add = pstm.executeUpdate();
-
-            if (add > 0){
-                new Alert(Alert.AlertType.CONFIRMATION,"Saved", ButtonType.OK).show();
-            }else {
-                new Alert(Alert.AlertType.WARNING,"Try agin", ButtonType.OK).show();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        getAll();
-        clearAll();
-    }
-
-    public void btnUpdateOnAction(ActionEvent actionEvent) {
+    public void btnSaveOnAction(ActionEvent actionEvent) throws SQLException, ClassNotFoundException {
         CompanyDTO companyDTO = new CompanyDTO(txtId.getText(), (String) cmbCompany_name.getValue(), (String) cmbType.getValue());
-        try {
-            Connection connection = DBConnection.getInstance().getConnection();
-            PreparedStatement pstm = connection.prepareStatement("UPDATE Company SET " + "company_name = ?,company_type = ? WHERE company_id = ?");
-
-            pstm.setString(1,companyDTO.getCompany_name());
-            pstm.setString(2,companyDTO.getCompany_type());
-            pstm.setString(3,companyDTO.getCompany_id());
-
-            int add = pstm.executeUpdate();
-
-            if (add > 0){
-                new Alert(Alert.AlertType.CONFIRMATION,"Updated", ButtonType.OK).show();
-            }else {
-                new Alert(Alert.AlertType.WARNING,"Try agin", ButtonType.OK).show();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        if (companyBO.addCompany(companyDTO)) {
+            new Alert(Alert.AlertType.CONFIRMATION, "Saved", ButtonType.OK).show();
+        } else {
+            new Alert(Alert.AlertType.WARNING, "Try again", ButtonType.OK).show();
         }
         getAll();
         clearAll();
     }
 
-    public void btnDeleteOnAction(ActionEvent actionEvent) {
-        try {
-            Connection connection = DBConnection.getInstance().getConnection();
-            PreparedStatement pstm = connection.prepareStatement("DELETE from Company WHERE company_id = ?");
-
-            pstm.setString(1,txtId.getText());
-
-            int add = pstm.executeUpdate();
-            if (add > 0){
-                new Alert(Alert.AlertType.CONFIRMATION,"Deleted", ButtonType.OK).show();
-            }else {
-                new Alert(Alert.AlertType.WARNING,"Try agin", ButtonType.OK).show();
-            }
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
+    public void btnUpdateOnAction(ActionEvent actionEvent) throws SQLException, ClassNotFoundException {
+        CompanyDTO companyDTO = new CompanyDTO(txtId.getText(), (String) cmbCompany_name.getValue(), (String) cmbType.getValue());
+        if (companyBO.updateCompany(new CompanyDTO(companyDTO.getCompany_id(), companyDTO.getCompany_name(), companyDTO.getCompany_type()))) {
+            new Alert(Alert.AlertType.CONFIRMATION, "Updated", ButtonType.OK).show();
+        } else {
+            new Alert(Alert.AlertType.WARNING, "Try again", ButtonType.OK).show();
         }
+        getAll();
+        clearAll();
+    }
+
+    public void btnDeleteOnAction(ActionEvent actionEvent) throws SQLException, ClassNotFoundException {
+        if (companyBO.deleteCompany(txtId.getText())) {
+            new Alert(Alert.AlertType.CONFIRMATION, "Deleted", ButtonType.OK).show();
+        } else {
+            new Alert(Alert.AlertType.WARNING, "Try again", ButtonType.OK).show();
+        }
+
         getAll();
         clearAll();
     }
 
     public void btnSearchOnAction(ActionEvent actionEvent) {
+        String id = txtSearch.getText();
         try {
-            Connection connection = DBConnection.getInstance().getConnection();
-            PreparedStatement pstm = connection.prepareStatement("SELECT * FROM Company WHERE company_id = ? ");
-
-            pstm.setString(1,txtSearch.getText());
-
-            ResultSet resultSet = pstm.executeQuery();
-            while (resultSet.next()){
-                txtId.setText(resultSet.getString(1));
-                cmbCompany_name.setValue(resultSet.getString(2));
-                cmbType.setValue(resultSet.getString(3));
+            CompanyDTO companyDTO = companyBO.searchCompany(id);
+            if (companyDTO != null) {
+                fillDate(companyDTO);
+            } else {
+                new Alert(Alert.AlertType.WARNING, "Try again", ButtonType.OK).show();
             }
-        } catch (SQLException throwables) {
+        } catch (SQLException | ClassNotFoundException throwables) {
             throwables.printStackTrace();
         }
+    }
+
+    private void fillDate(CompanyDTO companyDTO) {
+        txtId.setText(companyDTO.getCompany_id());
+        cmbCompany_name.setValue(companyDTO.getCompany_name());
+        cmbType.setValue(companyDTO.getCompany_type());
     }
 }

@@ -13,6 +13,8 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import lk.ijse.scms.bo.BOFactory;
+import lk.ijse.scms.bo.custom.ItemBO;
 import lk.ijse.scms.db.DBConnection;
 import lk.ijse.scms.dto.ItemDTO;
 import lk.ijse.scms.dto.tm.ItemTM;
@@ -81,6 +83,8 @@ public class ItemFormController implements Initializable {
     @FXML
     private TextField txtItem_place;
 
+    ItemBO itemBO = (ItemBO) BOFactory.getBoFactory().getBO(BOFactory.BOTypes.ITEM);
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         ObservableList<String> list = FXCollections.observableArrayList("Oil","Spare parts");
@@ -104,120 +108,88 @@ public class ItemFormController implements Initializable {
     }
 
     void getAll() {
+        tblItem.getItems().clear();
         try {
-            ObservableList<ItemTM> obList = FXCollections.observableArrayList();
-            List<ItemDTO> itemDTOListDTOList = ItemModel.getAll();
+
+            List<ItemDTO> itemDTOListDTOList = itemBO.getAllItem();
 
             for (ItemDTO itemDTO : itemDTOListDTOList){
-                obList.add(new ItemTM(
-                        itemDTO.getItemCode(),
-                        itemDTO.getItemType(),
-                        itemDTO.getUnitPrice(),
-                        itemDTO.getQtyOnStock()
-                ));
+                tblItem.getItems().add(new ItemTM(itemDTO.getItemCode(),itemDTO.getItemType(),
+                        itemDTO.getUnitPrice(),itemDTO.getQtyOnStock()));
             }
-            tblItem.setItems(obList);
 
-        } catch (SQLException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             new Alert(Alert.AlertType.ERROR, "Query error!").show();
         }
     }
 
-    public void btnSaveOnAction(ActionEvent actionEvent) {
+    public void btnSaveOnAction(ActionEvent actionEvent) throws SQLException, ClassNotFoundException {
         if(!isValidated()){
             new Alert(Alert.AlertType.ERROR,"Check Fields").show();
             return;
         }
         ItemDTO itemDTO = new ItemDTO(txtItem_code.getText(),(String) cmbItem_type.getValue(),Double.parseDouble(txtUnitPrice.getText()),Integer.parseInt(txtQtyOnStock.getText()));
-        try {
-            Connection connection = DBConnection.getInstance().getConnection();
-            PreparedStatement pstm = connection.prepareStatement("INSERT INTO Item " + "VALUE (?,?,?,?)");
-            pstm.setString(1,itemDTO.getItemCode());
-            pstm.setString(2,itemDTO.getItemType());
-            pstm.setDouble(3,itemDTO.getUnitPrice());
-            pstm.setInt(4,itemDTO.getQtyOnStock());
 
 
-            int add = pstm.executeUpdate();
-
-            if (add > 0){
-                new Alert(Alert.AlertType.CONFIRMATION,"Saved", ButtonType.OK).show();
-            }else {
-                new Alert(Alert.AlertType.WARNING,"Try agin", ButtonType.OK).show();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        if (itemBO.addItem(itemDTO)){
+            new Alert(Alert.AlertType.CONFIRMATION,"Saved", ButtonType.OK).show();
+        }else {
+            new Alert(Alert.AlertType.WARNING,"Try again", ButtonType.OK).show();
         }
+
         getAll();
         clearAll();
     }
 
-    public void btnUpdateOnAction(ActionEvent actionEvent) {
+    public void btnUpdateOnAction(ActionEvent actionEvent) throws SQLException, ClassNotFoundException {
         if(!isValidated()){
             new Alert(Alert.AlertType.ERROR,"Check Fields").show();
             return;
         }
        ItemDTO itemDTO = new ItemDTO(txtItem_code.getText(),(String) cmbItem_type.getValue(),Double.parseDouble(txtUnitPrice.getText()),Integer.parseInt(txtQtyOnStock.getText()));
-        try {
-            Connection connection = DBConnection.getInstance().getConnection();
-            PreparedStatement pstm = connection.prepareStatement("UPDATE Item SET " + "itemType = ?,unitPrice = ?,qtyOnStock = ? WHERE itemCode = ?");
 
-            pstm.setString(1,itemDTO.getItemType());
-            pstm.setDouble(2,itemDTO.getUnitPrice());
-            pstm.setInt(3,itemDTO.getQtyOnStock());
-            pstm.setString(4,itemDTO.getItemCode());
-
-            int add = pstm.executeUpdate();
-
-            if (add > 0){
-                new Alert(Alert.AlertType.CONFIRMATION,"Updated", ButtonType.OK).show();
-            }else {
-                new Alert(Alert.AlertType.WARNING,"Try agin", ButtonType.OK).show();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        if (itemBO.updateItem(new ItemDTO(itemDTO.getItemCode(),itemDTO.getItemType(),
+                itemDTO.getUnitPrice(),itemDTO.getQtyOnStock()))){
+            new Alert(Alert.AlertType.CONFIRMATION,"Updated", ButtonType.OK).show();
+        }else {
+            new Alert(Alert.AlertType.WARNING,"Try again", ButtonType.OK).show();
         }
+
         getAll();
         clearAll();
     }
 
-    public void btnDeleteOnAction(ActionEvent actionEvent) {
-        try {
-            Connection connection = DBConnection.getInstance().getConnection();
-            PreparedStatement pstm = connection.prepareStatement("DELETE from Item WHERE itemCode = ?");
-
-            pstm.setString(1,txtItem_code.getText());
-
-            int add = pstm.executeUpdate();
-            if (add > 0){
-                new Alert(Alert.AlertType.CONFIRMATION,"Deleted", ButtonType.OK).show();
-            }else {
-                new Alert(Alert.AlertType.WARNING,"Try agin", ButtonType.OK).show();
-            }
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
+    public void btnDeleteOnAction(ActionEvent actionEvent) throws SQLException, ClassNotFoundException {
+        if (itemBO.deleteItem(txtItem_code.getText())){
+            new Alert(Alert.AlertType.CONFIRMATION,"Deleted", ButtonType.OK).show();
+        }else {
+            new Alert(Alert.AlertType.WARNING,"Try again", ButtonType.OK).show();
         }
         getAll();
         clearAll();
     }
 
     public void btnSearchOnAction(ActionEvent actionEvent) {
+        String id =txtSerach.getText();
         try {
-            Connection connection = DBConnection.getInstance().getConnection();
-            PreparedStatement pstm = connection.prepareStatement("SELECT * FROM Item WHERE itemCode = ? ");
-
-            pstm.setString(1,txtSerach.getText());
-
-            ResultSet resultSet = pstm.executeQuery();
-            while (resultSet.next()){
-                txtItem_code.setText(resultSet.getString(1));
-                cmbItem_type.setValue(resultSet.getString(2));
-                txtUnitPrice.setText(resultSet.getString(3));
-                txtQtyOnStock.setText(resultSet.getString(4));
+            ItemDTO itemDTO = itemBO.searchItem(id);
+            if (itemDTO != null){
+                fillDate(itemDTO);
+            }else {
+                new Alert(Alert.AlertType.WARNING,"Try again", ButtonType.OK).show();
             }
-        } catch (SQLException throwables) {
+        } catch (SQLException | ClassNotFoundException throwables) {
             throwables.printStackTrace();
         }
+        txtSerach.setText("");
+    }
+
+    private void fillDate(ItemDTO itemDTO) {
+        txtItem_code.setText(itemDTO.getItemCode());
+        cmbItem_type.setValue(itemDTO.getItemType());
+        txtUnitPrice.setText(String.valueOf(itemDTO.getUnitPrice()));
+        txtQtyOnStock.setText(String.valueOf(itemDTO.getQtyOnStock()));
+
     }
 
     public void txtItemCodeOnKeyReleased(KeyEvent keyEvent) {

@@ -10,9 +10,12 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
+import lk.ijse.scms.bo.BOFactory;
+import lk.ijse.scms.bo.custom.EmployeeBO;
 import lk.ijse.scms.db.DBConnection;
 import lk.ijse.scms.dto.EmployeeDTO;
 import lk.ijse.scms.dto.tm.EmployeeTM;
+import lk.ijse.scms.entity.Employee;
 import lk.ijse.scms.model.EmployeeModel;
 import lk.ijse.scms.util.Regex;
 import lk.ijse.scms.util.TextFields;
@@ -22,6 +25,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.ResourceBundle;
@@ -79,6 +83,8 @@ public class EmployeeFormController implements Initializable {
 
     public AnchorPane loadFormContext;
 
+    EmployeeBO employeeBO = (EmployeeBO) BOFactory.getBoFactory().getBO(BOFactory.BOTypes.EMPLOYEE);
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         ObservableList<String> list = FXCollections.observableArrayList("Manager","Repairer","Cashier","Mechanic supporters");
@@ -107,131 +113,89 @@ public class EmployeeFormController implements Initializable {
     }
 
     void getAll() {
+        tblEmployee.getItems().clear();
         try {
-            ObservableList<EmployeeTM> obList = FXCollections.observableArrayList();
-            List<EmployeeDTO> employeeDTOList = EmployeeModel.getAll();
+            ArrayList<EmployeeDTO> employeeDTOList = employeeBO.getAllEmployee();
 
             for (EmployeeDTO employeeDTO : employeeDTOList){
-                obList.add(new EmployeeTM(
-                        employeeDTO.getEmployee_id(),
-                        employeeDTO.getEmployee_name(),
-                        employeeDTO.getNic(),
-                        employeeDTO.getAddress(),
-                        employeeDTO.getRanks(),
-                        employeeDTO.getContactno()
-                ));
+                tblEmployee.getItems().add(new EmployeeTM(employeeDTO.getEmployee_id(),employeeDTO.getEmployee_name(),
+                        employeeDTO.getNic(),employeeDTO.getAddress(),employeeDTO.getRanks(),employeeDTO.getContactno()));
             }
-            tblEmployee.setItems(obList);
 
-        } catch (SQLException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             new Alert(Alert.AlertType.ERROR, "Query error!").show();
         }
     }
 
-    public void btnSaveOnAction(ActionEvent actionEvent) {
+    public void btnSaveOnAction(ActionEvent actionEvent) throws SQLException, ClassNotFoundException {
         if(!isValidated()){
             new Alert(Alert.AlertType.ERROR,"Check Fields").show();
             return;
         }
         EmployeeDTO employeeDTO = new EmployeeDTO(txtId.getText(),txtName.getText(),txtNic.getText(),txtAddress.getText(),(String) cmbRanks.getValue(), txtContact_no.getText());
-        try {
-            Connection connection = DBConnection.getInstance().getConnection();
-            PreparedStatement pstm = connection.prepareStatement("INSERT INTO Employee " + "VALUE (?,?,?,?,?,?)");
-            pstm.setString(1,employeeDTO.getEmployee_id());
-            pstm.setString(2,employeeDTO.getEmployee_name());
-            pstm.setString(3,employeeDTO.getNic());
-            pstm.setString(4,employeeDTO.getAddress());
-            pstm.setString(5,employeeDTO.getRanks());
-            pstm.setString(6,employeeDTO.getContactno());
 
-            int add = pstm.executeUpdate();
-
-            if (add > 0){
-                new Alert(Alert.AlertType.CONFIRMATION,"Saved", ButtonType.OK).show();
-            }else {
-                new Alert(Alert.AlertType.WARNING,"Try agin", ButtonType.OK).show();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        if (employeeBO.addEmployee(employeeDTO)){
+            new Alert(Alert.AlertType.CONFIRMATION,"Saved", ButtonType.OK).show();
+        }else {
+            new Alert(Alert.AlertType.WARNING,"Try again", ButtonType.OK).show();
         }
+
         getAll();
         clearAll();
     }
 
-    public void btnUpdateOnAction(ActionEvent actionEvent) {
+    public void btnUpdateOnAction(ActionEvent actionEvent) throws SQLException, ClassNotFoundException {
         if(!isValidated()){
             new Alert(Alert.AlertType.ERROR,"Check Fields").show();
             return;
         }
         EmployeeDTO employeeDTO = new EmployeeDTO(txtId.getText(),txtName.getText(),txtNic.getText(),txtAddress.getText(),(String) cmbRanks.getValue(), txtContact_no.getText());
-        try {
-            Connection connection = DBConnection.getInstance().getConnection();
-            PreparedStatement pstm = connection.prepareStatement("UPDATE Employee SET " + "employee_name = ?,nic = ?,address = ?,ranks = ?,contact_no = ? WHERE employee_id = ?");
 
-            pstm.setString(1,employeeDTO.getEmployee_name());
-            pstm.setString(2,employeeDTO.getNic());
-            pstm.setString(3,employeeDTO.getAddress());
-            pstm.setString(4,employeeDTO.getRanks());
-            pstm.setString(5,employeeDTO.getContactno());
-            pstm.setString(6,employeeDTO.getEmployee_id());
-
-            int add = pstm.executeUpdate();
-
-            if (add > 0){
-                new Alert(Alert.AlertType.CONFIRMATION,"Updated", ButtonType.OK).show();
-            }else {
-                new Alert(Alert.AlertType.WARNING,"Try agin", ButtonType.OK).show();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        if (employeeBO.updateEmployee(new EmployeeDTO(employeeDTO.getEmployee_id(),employeeDTO.getEmployee_name(),employeeDTO.getNic(),
+                employeeDTO.getAddress(),employeeDTO.getRanks(),employeeDTO.getContactno()))){
+            new Alert(Alert.AlertType.CONFIRMATION,"Updated", ButtonType.OK).show();
+        }else {
+            new Alert(Alert.AlertType.WARNING,"Try again", ButtonType.OK).show();
         }
+
         getAll();
         clearAll();
     }
 
-    public void btnDeleteOnAction(ActionEvent actionEvent) {
-        try {
-            Connection connection = DBConnection.getInstance().getConnection();
-            PreparedStatement pstm = connection.prepareStatement("DELETE from Employee WHERE employee_id = ?");
-
-            pstm.setString(1,txtId.getText());
-
-            int add = pstm.executeUpdate();
-            if (add > 0){
-                new Alert(Alert.AlertType.CONFIRMATION,"Deleted", ButtonType.OK).show();
-            }else {
-                new Alert(Alert.AlertType.WARNING,"Try agin", ButtonType.OK).show();
-            }
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
+    public void btnDeleteOnAction(ActionEvent actionEvent) throws SQLException, ClassNotFoundException {
+        if (employeeBO.deleteEmployee(txtId.getText())){
+            new Alert(Alert.AlertType.CONFIRMATION,"Deleted", ButtonType.OK).show();
+        }else {
+            new Alert(Alert.AlertType.WARNING,"Try again", ButtonType.OK).show();
         }
         getAll();
         clearAll();
     }
 
     public void btnSearchOnAction(ActionEvent actionEvent) {
+        String id =txtSearch.getText();
         try {
-            Connection connection = DBConnection.getInstance().getConnection();
-            PreparedStatement pstm = connection.prepareStatement("SELECT * FROM Employee WHERE employee_id = ? ");
-
-            pstm.setString(1,txtSearch.getText());
-
-            ResultSet resultSet = pstm.executeQuery();
-            while (resultSet.next()){
-                txtId.setText(resultSet.getString(1));
-                txtName.setText(resultSet.getString(2));
-                txtNic.setText(resultSet.getString(3));
-                txtAddress.setText(resultSet.getString(4));
-                cmbRanks.setValue(resultSet.getString(5));
-                txtContact_no.setText(resultSet.getString(6));
+            EmployeeDTO employeeDTO = employeeBO.searchEmployee(id);
+            if (employeeDTO !=null){
+                fillDate(employeeDTO);
+            }else {
+                new Alert(Alert.AlertType.WARNING,"Try again", ButtonType.OK).show();
             }
-        } catch (SQLException throwables) {
+        } catch (SQLException | ClassNotFoundException throwables) {
             throwables.printStackTrace();
         }
     }
 
-    public void txtEmployeeIDOnKeyReleased(KeyEvent keyEvent) {
+    private void fillDate(EmployeeDTO employeeDTO) {
+        txtId.setText(employeeDTO.getEmployee_id());
+        txtName.setText(employeeDTO.getEmployee_name());
+        txtNic.setText(employeeDTO.getNic());
+        txtAddress.setText(employeeDTO.getAddress());
+        cmbRanks.setValue(employeeDTO.getRanks());
+        txtContact_no.setText(employeeDTO.getContactno());
+    }
 
+    public void txtEmployeeIDOnKeyReleased(KeyEvent keyEvent) {
         Regex.setTextColor(TextFields.INVOICE,txtId);
     }
 

@@ -15,7 +15,8 @@ public class UserDAOImpl implements UserDAO {
         ArrayList<User> allUser = new ArrayList<>();
         ResultSet rst = CrudUtil.execute("SELECT * FROM User");
         while (rst.next()) {
-            User user = new User(rst.getString("user_id"), rst.getString("user_name"), rst.getString("password"),rst.getString("ranks"),rst.getString("email"),rst.getString("nic"),rst.getString("contactno"));
+            User user = new User(rst.getString("user_id"), rst.getString("user_name"), rst.getString("password"),
+                    rst.getString("ranks"),rst.getString("email"),rst.getString("nic"),rst.getString("contact_no"));
             allUser.add(user);
         }
         return allUser;
@@ -23,12 +24,14 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public boolean add(User dto) throws SQLException, ClassNotFoundException {
-        return CrudUtil.execute("INSERT INTO User (user_id,user_name,password,ranks,email,nic,contact_no) VALUES (?,?,?,?,?,?,?)", dto.getUser_id(),dto.getUser_name(),dto.getPassword(),dto.getRanks(),dto.getEmail(),dto.getNic(),dto.getContactno());
+        return CrudUtil.execute("INSERT INTO User (user_id,user_name,password,ranks,email,nic,contact_no) VALUES (?,?,?,?,?,?,?)",
+                dto.getUser_id(),dto.getUser_name(),dto.getPassword(),dto.getRanks(),dto.getEmail(),dto.getNic(),dto.getContactno());
     }
 
     @Override
     public boolean update(User dto) throws SQLException, ClassNotFoundException {
-        return CrudUtil.execute("UPDATE User SET user_name=?, password=?, ranks=?, email=?, nic=?, contact_no=? WHERE user_id=?", dto.getUser_name(),dto.getPassword(),dto.getRanks(),dto.getEmail(),dto.getNic(),dto.getContactno(),dto.getUser_id());
+        return CrudUtil.execute("UPDATE User SET user_name=?, password=?, ranks=?, email=?, nic=?, contact_no=? WHERE user_id=?",
+                dto.getUser_name(),dto.getPassword(),dto.getRanks(),dto.getEmail(),dto.getNic(),dto.getContactno(),dto.getUser_id());
     }
 
     @Override
@@ -40,6 +43,7 @@ public class UserDAOImpl implements UserDAO {
     public User search(String id) throws SQLException, ClassNotFoundException {
         ResultSet rst = CrudUtil.execute("SELECT * FROM User WHERE user_id=?", id + "");
         rst.next();
-        return new User(id + "", rst.getString("user_name"), rst.getString("password"),rst.getString("ranks"),rst.getString("email"),rst.getString("nic"),rst.getString("contact_no"));
+        return new User(id + "", rst.getString("user_name"), rst.getString("password"),rst.getString("ranks"),
+                rst.getString("email"),rst.getString("nic"),rst.getString("contact_no"));
     }
 }

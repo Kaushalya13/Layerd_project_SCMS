@@ -16,6 +16,8 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import lk.ijse.scms.bo.BOFactory;
+import lk.ijse.scms.bo.custom.SupplierBO;
 import lk.ijse.scms.db.DBConnection;
 import lk.ijse.scms.dto.SupplierDTO;
 import lk.ijse.scms.dto.tm.SupplierTM;
@@ -80,6 +82,8 @@ public class SupplierFormController implements Initializable {
 
     public AnchorPane loadFormContext;
 
+    SupplierBO supplierBO = (SupplierBO) BOFactory.getBoFactory().getBO(BOFactory.BOTypes.SUPPLIER);
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         getAll();
@@ -104,124 +108,85 @@ public class SupplierFormController implements Initializable {
     }
 
     void getAll(){
+        tblSupplier.getItems().clear();
         try {
-            ObservableList<SupplierTM> obList = FXCollections.observableArrayList();
-            List<SupplierDTO> supplierDTOList = SupplierModel.getAll();
+            List<SupplierDTO> supplierDTOList = supplierBO.getAllSupplier();
 
             for (SupplierDTO supplierDTO : supplierDTOList){
-                obList.add(new SupplierTM(
-                        supplierDTO.getSupplier_id(),
-                        supplierDTO.getSupplier_name(),
-                        supplierDTO.getAddress(),
-                        supplierDTO.getEmail(),
-                        supplierDTO.getContactno()
-                ));
+               tblSupplier.getItems().add(new SupplierTM(supplierDTO.getSupplier_id(),supplierDTO.getSupplier_name(),
+                       supplierDTO.getAddress(),supplierDTO.getEmail(),supplierDTO.getContactno()));
             }
-            tblSupplier.setItems(obList);
 
-        } catch (SQLException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             new Alert(Alert.AlertType.ERROR, "Query error!").show();
         }
     }
-    public void btnSaveOnAction(ActionEvent actionEvent) {
+    public void btnSaveOnAction(ActionEvent actionEvent) throws SQLException, ClassNotFoundException {
         if(!isValidated()){
             new Alert(Alert.AlertType.ERROR,"Check Fields").show();
             return;
         }
         SupplierDTO supplierDTO = new SupplierDTO(txtId.getText(), txtName.getText(), txtAddress.getText(), txtEmail.getText(), txtContactNo.getText());
-        try {
-            Connection connection = DBConnection.getInstance().getConnection();
-            PreparedStatement pstm = connection.prepareStatement("INSERT INTO Supplier VALUE (?,?,?,?,?)");
-            pstm.setString(1,supplierDTO.getSupplier_id());
-            pstm.setString(2,supplierDTO.getSupplier_name());
-            pstm.setString(3,supplierDTO.getAddress());
-            pstm.setString(4,supplierDTO.getEmail());
-            pstm.setString(5,supplierDTO.getContactno());
 
-            int add = pstm.executeUpdate();
-
-            if (add > 0){
-                new Alert(Alert.AlertType.CONFIRMATION,"Saved", ButtonType.OK).show();
-            }else {
-                new Alert(Alert.AlertType.WARNING,"Try agin", ButtonType.OK).show();
-            }
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
+        if (supplierBO.addSupplier(supplierDTO)){
+            new Alert(Alert.AlertType.CONFIRMATION,"Saved", ButtonType.OK).show();
+        }else {
+            new Alert(Alert.AlertType.WARNING,"Try again", ButtonType.OK).show();
         }
         getAll();
         clearAll();
     }
 
-    public void btnUpdateOnAction(ActionEvent actionEvent) {
+    public void btnUpdateOnAction(ActionEvent actionEvent) throws SQLException, ClassNotFoundException {
         if(!isValidated()){
             new Alert(Alert.AlertType.ERROR,"Check Fields").show();
             return;
         }
         SupplierDTO supplierDTO = new SupplierDTO(txtId.getText(), txtName.getText(), txtAddress.getText(), txtEmail.getText(), txtContactNo.getText());
-        try {
-            Connection connection = DBConnection.getInstance().getConnection();
-            PreparedStatement pstm = connection.prepareStatement("UPDATE Supplier SET " + "supplier_name= ?,address = ?,email = ?,contact_no = ? WHERE supplier_id = ?");
 
-            pstm.setString(1,supplierDTO.getSupplier_name());
-            pstm.setString(2,supplierDTO.getAddress());
-            pstm.setString(3,supplierDTO.getEmail());
-            pstm.setString(4,supplierDTO.getContactno());
-            pstm.setString(5,supplierDTO.getSupplier_id());
-
-            int add = pstm.executeUpdate();
-            if (add > 0){
-                new Alert(Alert.AlertType.CONFIRMATION,"Updated",ButtonType.OK).show();
-            }else {
-                new Alert(Alert.AlertType.WARNING,"Try agin",ButtonType.OK).show();
-            }
-
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
+        if (supplierBO.updateSupplier(new SupplierDTO(supplierDTO.getSupplier_id(),supplierDTO.getSupplier_name(),
+                supplierDTO.getAddress(),supplierDTO.getEmail(),supplierDTO.getContactno()))){
+            new Alert(Alert.AlertType.CONFIRMATION,"Updated",ButtonType.OK).show();
+        }else {
+            new Alert(Alert.AlertType.WARNING,"Try agin",ButtonType.OK).show();
         }
+
         getAll();
         clearAll();
     }
 
-    public void btnDeleteOnAction(ActionEvent actionEvent) {
-        try {
-            Connection connection = DBConnection.getInstance().getConnection();
-            PreparedStatement pstm = connection.prepareStatement("DELETE from Supplier WHERE supplier_id = ?");
-
-            pstm.setString(1,txtId.getText());
-
-            int add = pstm.executeUpdate();
-            if (add > 0){
-                new Alert(Alert.AlertType.CONFIRMATION,"Deleted",ButtonType.OK).show();
-            }else {
-                new Alert(Alert.AlertType.WARNING,"Try agin",ButtonType.OK).show();
-            }
-
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
+    public void btnDeleteOnAction(ActionEvent actionEvent) throws SQLException, ClassNotFoundException {
+        if (supplierBO.deleteSupplier(txtId.getText())){
+            new Alert(Alert.AlertType.CONFIRMATION,"Deleted",ButtonType.OK).show();
+        }else {
+            new Alert(Alert.AlertType.WARNING,"Try agin",ButtonType.OK).show();
         }
+
         getAll();
         clearAll();
     }
 
 
     public void btnSearchOnAction(ActionEvent actionEvent) {
+        String id = txtSearch.getText();
         try {
-            Connection connection = DBConnection.getInstance().getConnection();
-            PreparedStatement pstm = connection.prepareStatement("SELECT * FROM Supplier WHERE supplier_id = ?");
-
-            pstm.setString(1,txtSearch.getText());
-
-            ResultSet resultSet = pstm.executeQuery();
-            while (resultSet.next()){
-                txtId.setText(resultSet.getString(1));
-                txtName.setText(resultSet.getString(2));
-                txtAddress.setText(resultSet.getString(3));
-                txtEmail.setText(resultSet.getString(4));
-                txtContactNo.setText(resultSet.getString(5));
+            SupplierDTO supplierDTO = supplierBO.searchSupplier(id);
+            if (supplierDTO != null){
+                fillDate(supplierDTO);
+            }else {
+                new Alert(Alert.AlertType.WARNING,"Try again", ButtonType.OK).show();
             }
-        } catch (SQLException throwables) {
+        } catch (SQLException | ClassNotFoundException throwables) {
             throwables.printStackTrace();
         }
+    }
+
+    private void fillDate(SupplierDTO supplierDTO) {
+        txtId.setText(supplierDTO.getSupplier_id());
+        txtName.setText(supplierDTO.getSupplier_name());
+        txtAddress.setText(supplierDTO.getAddress());
+        txtEmail.setText(supplierDTO.getEmail());
+        txtContactNo.setText(supplierDTO.getContactno());
     }
 
     public void txtSupplierIDOnKeyReleased(KeyEvent keyEvent) {

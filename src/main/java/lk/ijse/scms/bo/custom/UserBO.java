@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 public interface UserBO extends SuperBO {
+
     public ArrayList<UserDTO> getAllUser() throws SQLException, ClassNotFoundException;
 
     public boolean addUser(UserDTO dto) throws SQLException, ClassNotFoundException ;

@@ -17,6 +17,7 @@ import lk.ijse.scms.bo.BOFactory;
 import lk.ijse.scms.bo.custom.UserBO;
 import lk.ijse.scms.db.DBConnection;
 import lk.ijse.scms.dto.UserDTO;
+import lk.ijse.scms.dto.VehicleDTO;
 import lk.ijse.scms.dto.tm.UserTM;
 import lk.ijse.scms.model.UserModel;
 import lk.ijse.scms.util.Regex;
@@ -64,7 +65,7 @@ public class UserFormController implements Initializable {
     private ComboBox<String> cmbRanks;
 
     @FXML
-    private JFXTextField txtSerach;
+    private JFXTextField txtSearch;
 
     @FXML
     private TableView<UserTM> tblUser;
@@ -97,7 +98,6 @@ public class UserFormController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         ObservableList<String> list = FXCollections.observableArrayList("Admi","Cashier");
-
         cmbRanks.setItems(list);
 
         getAll();
@@ -126,11 +126,13 @@ public class UserFormController implements Initializable {
     }
 
     void getAll() {
+        tblUser.getItems().clear();
         try {
             ArrayList<UserDTO> userDTOList = userBO.getAllUser();
 
             for (UserDTO userDTO : userDTOList){
-                tblUser.getItems().add(new UserTM(userDTO.getUser_id(),userDTO.getUser_name(),userDTO.getPassword(),userDTO.getRanks(),userDTO.getEmail(),userDTO.getNic(),userDTO.getContactno()));
+                tblUser.getItems().add(new UserTM(userDTO.getUser_id(),userDTO.getUser_name(),
+                        userDTO.getPassword(),userDTO.getRanks(),userDTO.getEmail(),userDTO.getNic(),userDTO.getContactno()));
             }
 
         } catch (SQLException | ClassNotFoundException e) {
@@ -145,11 +147,10 @@ public class UserFormController implements Initializable {
         }
         UserDTO userDTO = new UserDTO(txtId.getText(), txtName.getText(), txtPassword.getText(), (String) cmbRanks.getValue(), txtEmail.getText(), txtNic.getText(), txtContact_no.getText());
 
-
-        if (userBO.addUser(new UserDTO(userDTO.getUser_id(),userDTO.getUser_name(),userDTO.getPassword(),userDTO.getRanks(),userDTO.getEmail(),userDTO.getNic(),userDTO.getContactno()))){
+        if (userBO.addUser(userDTO)){
             new Alert(Alert.AlertType.CONFIRMATION,"Saved", ButtonType.OK).show();
         }else {
-            new Alert(Alert.AlertType.WARNING,"Try agin", ButtonType.OK).show();
+            new Alert(Alert.AlertType.WARNING,"Try again", ButtonType.OK).show();
         }
 
         getAll();
@@ -163,10 +164,12 @@ public class UserFormController implements Initializable {
         }
         UserDTO userDTO = new UserDTO(txtId.getText(), txtName.getText(), txtPassword.getText(), (String) cmbRanks.getValue(), txtEmail.getText(), txtNic.getText(), txtContact_no.getText());
 
-        if (userBO.updateUser(new UserDTO(userDTO.getUser_id(),userDTO.getUser_name(),userDTO.getPassword(),userDTO.getRanks(),userDTO.getEmail(),userDTO.getNic(),userDTO.getContactno()))){
+        if (userBO.updateUser(new UserDTO(userDTO.getUser_id(),userDTO.getUser_name(),
+                userDTO.getPassword(),userDTO.getRanks(),userDTO.getEmail(),userDTO.getNic(),userDTO.getContactno()))){
+
             new Alert(Alert.AlertType.CONFIRMATION,"Updated", ButtonType.OK).show();
         }else {
-            new Alert(Alert.AlertType.WARNING,"Try agin", ButtonType.OK).show();
+            new Alert(Alert.AlertType.WARNING,"Try again", ButtonType.OK).show();
         }
         getAll();
         clearAll();
@@ -177,7 +180,7 @@ public class UserFormController implements Initializable {
         if (userBO.deleteUser(txtId.getText())){
             new Alert(Alert.AlertType.CONFIRMATION,"Deleted", ButtonType.OK).show();
         }else {
-            new Alert(Alert.AlertType.WARNING,"Try agin", ButtonType.OK).show();
+            new Alert(Alert.AlertType.WARNING,"Try again", ButtonType.OK).show();
         }
 
         getAll();
@@ -185,7 +188,31 @@ public class UserFormController implements Initializable {
     }
 
     public void btnSearchOnAction(ActionEvent actionEvent) throws SQLException, ClassNotFoundException {
-        userBO.searchUser(txtId.getText());
+        String id = txtSearch.getText();
+        try {
+            UserDTO userDTO = userBO.searchUser(id);
+
+            if (userDTO != null){
+                fillDate(userDTO);
+            }else {
+                new Alert(Alert.AlertType.WARNING,"Try again", ButtonType.OK).show();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        txtSearch.setText("");
+    }
+
+    private void fillDate(UserDTO userDTO) {
+        txtId.setText(userDTO.getUser_id());
+        txtName.setText(userDTO.getUser_name());
+        txtPassword.setText(userDTO.getPassword());
+        cmbRanks.setValue(userDTO.getRanks());
+        txtEmail.setText(userDTO.getEmail());
+        txtNic.setText(userDTO.getNic());
+        txtContact_no.setText(userDTO.getContactno());
     }
 
     public void txtUserIDOnKeyReleased(KeyEvent keyEvent) {
@@ -212,7 +239,6 @@ public class UserFormController implements Initializable {
         if(!Regex.setTextColor(TextFields.INVOICE,txtId))return false;
         if(!Regex.setTextColor(TextFields.NAME,txtName))return false;
         if(!Regex.setTextColor(TextFields.LANKAN_ID,txtNic))return false;
-        //if(!Regex.setTextColor(TextFields.PASSWORD,txtPassword))return false;
         if(!Regex.setTextColor(TextFields.EMAIL,txtEmail))return false;
         if(!Regex.setTextColor(TextFields.PHONE,txtContact_no))return false;
         return true;

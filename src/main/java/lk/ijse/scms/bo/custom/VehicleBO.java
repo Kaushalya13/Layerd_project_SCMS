@@ -1,7 +1,6 @@
 package lk.ijse.scms.bo.custom;
 
 import lk.ijse.scms.bo.SuperBO;
-import lk.ijse.scms.dto.UserDTO;
 import lk.ijse.scms.dto.VehicleDTO;
 
 import java.sql.SQLException;

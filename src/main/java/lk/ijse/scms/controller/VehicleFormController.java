@@ -12,11 +12,16 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import lk.ijse.scms.bo.BOFactory;
 import lk.ijse.scms.bo.custom.VehicleBO;
+import lk.ijse.scms.dao.DAOFactory;
+import lk.ijse.scms.dao.custom.CompanyDAO;
+import lk.ijse.scms.dao.custom.CustomerDAO;
+import lk.ijse.scms.dao.custom.VehicleDAO;
 import lk.ijse.scms.db.DBConnection;
 import lk.ijse.scms.dto.CompanyDTO;
 import lk.ijse.scms.dto.CustomerDTO;
 import lk.ijse.scms.dto.VehicleDTO;
 import lk.ijse.scms.dto.tm.VehicleTM;
+import lk.ijse.scms.entity.Vehicle;
 import lk.ijse.scms.model.CompanyModel;
 import lk.ijse.scms.model.CustomerModel;
 import lk.ijse.scms.model.VehicleModel;
@@ -103,6 +108,10 @@ public class VehicleFormController implements Initializable {
 
     VehicleBO vehicleBO = (VehicleBO) BOFactory.getBoFactory().getBO(BOFactory.BOTypes.VEHICLE);
 
+    CompanyDAO companyDAO = (CompanyDAO) DAOFactory.getDaoFactory().getDAO(DAOFactory.DAOTypes.COMPANY);
+
+    CustomerDAO customerDAO = (CustomerDAO) DAOFactory.getDaoFactory().getDAO(DAOFactory.DAOTypes.CUSTOMER);
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         ObservableList<String> list = FXCollections.observableArrayList("Honda","Suzuki","Yamaha Ray ZR","TVS","BAJAJ","KTM","Hero","CT 100","Dio","Discover","Hornet","Other");
@@ -139,7 +148,7 @@ public class VehicleFormController implements Initializable {
 
     void loadComboBox() throws SQLException {
         ObservableList<String> list = FXCollections.observableArrayList();
-        customerDTOArrayList=CustomerModel.View();
+        customerDTOArrayList= CustomerModel.View();
         for (CustomerDTO customerDTO:customerDTOArrayList) {
             list.add(customerDTO.getCustId());
         }
@@ -168,6 +177,7 @@ public class VehicleFormController implements Initializable {
     }
 
     void getAll() {
+        tblVehicle.getItems().clear();
         try {
             ArrayList<VehicleDTO> vehicleDTOList = vehicleBO.getAllVehicle();
 
@@ -175,7 +185,6 @@ public class VehicleFormController implements Initializable {
                tblVehicle.getItems().add(new VehicleTM(vehicleDTO.getVehicle_id(),vehicleDTO.getVehicle_name(),
                        vehicleDTO.getVehicle_type(),vehicleDTO.getCustomer_id(),vehicleDTO.getCompany_id(),vehicleDTO.getReceive_date(),vehicleDTO.getReturn_date(),vehicleDTO.getStatus()));
             }
-
 
         } catch (SQLException | ClassNotFoundException e) {
             new Alert(Alert.AlertType.ERROR, "Query error!").show();
@@ -192,11 +201,11 @@ public class VehicleFormController implements Initializable {
 
         VehicleDTO vehicleDTO = new VehicleDTO(txtId.getText(), (String) cmbVehicle_name.getValue(),(String) cmbType.getValue(),(String) cmbCustomer_id.getValue(),(String) cmbCompany_id.getValue(),date,returndate,"Active");
 
-        if (vehicleBO.addVehicle(new VehicleDTO(vehicleDTO.getVehicle_id(),vehicleDTO.getVehicle_name(),vehicleDTO.getVehicle_type(),
-                vehicleDTO.getCustomer_id(),vehicleDTO.getCompany_id(),vehicleDTO.getReceive_date(),vehicleDTO.getReturn_date(),vehicleDTO.getStatus()))){
+
+        if(vehicleBO.addVehicle(vehicleDTO)){
             new Alert(Alert.AlertType.CONFIRMATION,"Saved", ButtonType.OK).show();
         }else {
-            new Alert(Alert.AlertType.WARNING,"Try agin", ButtonType.OK).show();
+            new Alert(Alert.AlertType.WARNING,"Try again", ButtonType.OK).show();
         }
         getAll();
         clearAll();
@@ -209,13 +218,15 @@ public class VehicleFormController implements Initializable {
         }
         String date=Date.getValue().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         String returndate=ReturnDate.getValue().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        VehicleDTO vehicleDTO = new VehicleDTO(txtId.getText(), (String) cmbVehicle_name.getValue(),(String) cmbType.getValue(),(String) cmbCustomer_id.getValue(),(String) cmbCompany_id.getValue(),date,returndate,"Active");
 
-        if (vehicleBO.updateVehicle(new VehicleDTO(vehicleDTO.getVehicle_id(),vehicleDTO.getVehicle_name(),vehicleDTO.getVehicle_type(),vehicleDTO.getCustomer_id(),vehicleDTO.getCompany_id(),
-                vehicleDTO.getReceive_date(),vehicleDTO.getReturn_date(),vehicleDTO.getStatus()))){
+        VehicleDTO vehicleDTO = new VehicleDTO(txtId.getText(), (String) cmbVehicle_name.getValue(),(String) cmbType.getValue(),
+                (String) cmbCustomer_id.getValue(),(String) cmbCompany_id.getValue(),date,returndate,"Active");
+
+        if (vehicleBO.updateVehicle(new VehicleDTO(vehicleDTO.getVehicle_id(),vehicleDTO.getVehicle_name(),vehicleDTO.getVehicle_type(),vehicleDTO.getCustomer_id(),
+                vehicleDTO.getCompany_id(),vehicleDTO.getReceive_date(),vehicleDTO.getReturn_date(),vehicleDTO.getStatus()))){
             new Alert(Alert.AlertType.CONFIRMATION,"Updated", ButtonType.OK).show();
         }else {
-            new Alert(Alert.AlertType.WARNING,"Try agin", ButtonType.OK).show();
+            new Alert(Alert.AlertType.WARNING,"Try again", ButtonType.OK).show();
         }
 
         getAll();
@@ -227,14 +238,37 @@ public class VehicleFormController implements Initializable {
         if (vehicleBO.deleteVehicle(txtId.getText())){
                 new Alert(Alert.AlertType.CONFIRMATION,"Deleted", ButtonType.OK).show();
             }else {
-                new Alert(Alert.AlertType.WARNING,"Try agin", ButtonType.OK).show();
+                new Alert(Alert.AlertType.WARNING,"Try again", ButtonType.OK).show();
         }
         getAll();
         clearAll();
     }
 
     public void btnSearchOnAction(ActionEvent actionEvent) throws SQLException, ClassNotFoundException {
-       vehicleBO.searchVehicle(txtId.getText());
+        String id = txtSearch.getText();
+        try {
+            VehicleDTO vehicleDTO = vehicleBO.searchVehicle(id);
+            if (vehicleDTO != null){
+                fillDate(vehicleDTO);
+            }else {
+                new Alert(Alert.AlertType.WARNING,"Try again", ButtonType.OK).show();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        txtSearch.setText("");
+    }
+
+    private void fillDate(VehicleDTO vehicleDTO) {
+        cmbCustomer_id.setValue(vehicleDTO.getCustomer_id());
+        txtId.setText(vehicleDTO.getVehicle_id());
+        cmbVehicle_name.setValue(vehicleDTO.getVehicle_name());
+        cmbType.setValue(vehicleDTO.getVehicle_type());
+        Date.setValue(LocalDate.parse(vehicleDTO.getReceive_date()));
+        ReturnDate.setValue(LocalDate.parse(vehicleDTO.getReturn_date()));
+        cmbCompany_id.setValue(vehicleDTO.getCompany_id());
     }
 
     public void cmbCustomer_idOnAction(ActionEvent actionEvent) {

@@ -13,6 +13,9 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
+import lk.ijse.scms.bo.BOFactory;
+import lk.ijse.scms.bo.custom.CustomerBO;
+import lk.ijse.scms.bo.custom.UserBO;
 import lk.ijse.scms.db.DBConnection;
 import lk.ijse.scms.dto.CustomerDTO;
 import lk.ijse.scms.dto.tm.CustomerTM;
@@ -82,6 +85,8 @@ public class CustomerFormController implements Initializable {
 
     public AnchorPane loadFormContext;
 
+    CustomerBO customerBO  = (CustomerBO) BOFactory.getBoFactory().getBO(BOFactory.BOTypes.CUSTOMER);
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         getAll();
@@ -107,126 +112,85 @@ public class CustomerFormController implements Initializable {
     }
 
     void getAll(){
+        tblCustomer.getItems().clear();
         try {
-            ObservableList<CustomerTM> obList = FXCollections.observableArrayList();
-            List<CustomerDTO> custDTOList = CustomerModel.getAll();
+            List<CustomerDTO> custDTOList = customerBO.getAllCustomer();
 
             for (CustomerDTO customerDTO : custDTOList){
-                obList.add(new CustomerTM(
-                        customerDTO.getCustId(),
-                        customerDTO.getCustName(),
-                        customerDTO.getNic(),
-                        customerDTO.getAddress(),
-                        customerDTO.getEmail(),
-                        customerDTO.getContactno()
-
-                ));
+               tblCustomer.getItems().add(new CustomerTM(customerDTO.getCustId(),customerDTO.getCustName(),
+                       customerDTO.getNic(),customerDTO.getAddress(),customerDTO.getEmail(),customerDTO.getContactno()));
             }
-            tblCustomer.setItems(obList);
 
-        } catch (SQLException e) {
+
+        } catch (SQLException | ClassNotFoundException e) {
             new Alert(Alert.AlertType.ERROR, "Query error!").show();
         }
     }
-    public void btnSaveOnAction(ActionEvent actionEvent) {
+    public void btnSaveOnAction(ActionEvent actionEvent) throws SQLException, ClassNotFoundException {
         if(!isValidated()){
             new Alert(Alert.AlertType.ERROR,"Check Fields").show();
             return;
         }
         CustomerDTO custDTO = new CustomerDTO(txtId.getText(),txtName.getText(),txtNic.getText(),txtAddress.getText(),txtEmail.getText(),txtContactNo.getText());
-        try {
-            Connection connection = DBConnection.getInstance().getConnection();
-            PreparedStatement pstm = connection.prepareStatement("INSERT INTO Customer " + "VALUE (?,?,?,?,?,?)");
-            pstm.setString(1,custDTO.getCustId());
-            pstm.setString(2,custDTO.getCustName());
-            pstm.setString(3,custDTO.getNic());
-            pstm.setString(4,custDTO.getAddress());
-            pstm.setString(5,custDTO.getEmail());
-            pstm.setString(6,custDTO.getContactno());
 
-            int add = pstm.executeUpdate();
-
-            if (add>0 ){
-                new Alert(Alert.AlertType.CONFIRMATION,"Saved", ButtonType.OK).show();
-            }else {
-                new Alert(Alert.AlertType.WARNING,"Try agin", ButtonType.OK).show();
-            }
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
+        if (customerBO.addCustomer(custDTO)){
+            new Alert(Alert.AlertType.CONFIRMATION,"Saved", ButtonType.OK).show();
+        }else {
+            new Alert(Alert.AlertType.WARNING,"Try again", ButtonType.OK).show();
         }
+
         getAll();
         clearAll();
     }
 
-    public void btnUpdateOnAction(ActionEvent actionEvent) {
+    public void btnUpdateOnAction(ActionEvent actionEvent) throws SQLException, ClassNotFoundException {
         if(!isValidated()){
             new Alert(Alert.AlertType.ERROR,"Check Fields").show();
             return;
         }
         CustomerDTO custDTO = new CustomerDTO(txtId.getText(),txtName.getText(),txtNic.getText(),txtAddress.getText(),txtEmail.getText(),txtContactNo.getText());
-        try {
-            Connection connection = DBConnection.getInstance().getConnection();
-            PreparedStatement pstm = connection.prepareStatement("UPDATE Customer SET " + "customer_name= ?,nic = ?,address = ?,email = ?,contact_no = ? WHERE customer_id = ?");
 
-            pstm.setString(1,custDTO.getCustName());
-            pstm.setString(2,custDTO.getNic());
-            pstm.setString(3,custDTO.getAddress());
-            pstm.setString(4,custDTO.getEmail());
-            pstm.setString(5,custDTO.getContactno());
-            pstm.setString(6,custDTO.getCustId());
-
-            int add = pstm.executeUpdate();
-            if (add > 0){
-                new Alert(Alert.AlertType.CONFIRMATION,"Updated", ButtonType.OK).show();
-            }else {
-                new Alert(Alert.AlertType.WARNING,"Try agin", ButtonType.OK).show();
-            }
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
+        if (customerBO.updateCustomer(new CustomerDTO(custDTO.getCustId(),custDTO.getCustName(),
+                custDTO.getNic(),custDTO.getAddress(),custDTO.getEmail(),custDTO.getContactno()))){
+            new Alert(Alert.AlertType.CONFIRMATION,"Updated", ButtonType.OK).show();
+        }else {
+            new Alert(Alert.AlertType.WARNING,"Try again", ButtonType.OK).show();
         }
         getAll();
         clearAll();
     }
 
-    public void btnDeleteOnAction(ActionEvent actionEvent) {
-        try {
-            Connection connection = DBConnection.getInstance().getConnection();
-            PreparedStatement pstm = connection.prepareStatement("DELETE from Customer WHERE customer_id = ?");
-
-            pstm.setString(1,txtId.getText());
-
-            int add = pstm.executeUpdate();
-            if (add > 0){
-                new Alert(Alert.AlertType.CONFIRMATION,"Deleted", ButtonType.OK).show();
-            }else {
-                new Alert(Alert.AlertType.WARNING,"Try agin", ButtonType.OK).show();
-            }
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
+    public void btnDeleteOnAction(ActionEvent actionEvent) throws SQLException, ClassNotFoundException {
+        if (customerBO.deleteCustomer(txtId.getText())){
+            new Alert(Alert.AlertType.CONFIRMATION,"Deleted", ButtonType.OK).show();
+        }else {
+            new Alert(Alert.AlertType.WARNING,"Try again", ButtonType.OK).show();
         }
         getAll();
         clearAll();
     }
 
     public void btnSearchOnAction(ActionEvent actionEvent) {
+        String id = txtSearch.getText();
         try {
-            Connection connection = DBConnection.getInstance().getConnection();
-            PreparedStatement pstm = connection.prepareStatement("SELECT * FROM Customer WHERE customer_id = ? ");
-
-            pstm.setString(1,txtSearch.getText());
-
-            ResultSet resultSet = pstm.executeQuery();
-            while (resultSet.next()){
-                txtId.setText(resultSet.getString(1));
-                txtName.setText(resultSet.getString(2));
-                txtNic.setText(resultSet.getString(3));
-                txtAddress.setText(resultSet.getString(4));
-                txtEmail.setText(resultSet.getString(5));
-                txtContactNo.setText(resultSet.getString(6));
+            CustomerDTO customerDTO = customerBO.searchCustomer(id);
+            if (customerDTO != null){
+                fillDate(customerDTO);
+            }else {
+                new Alert(Alert.AlertType.WARNING,"Try again", ButtonType.OK).show();
             }
-        } catch (SQLException throwables) {
+        } catch (SQLException | ClassNotFoundException throwables) {
             throwables.printStackTrace();
         }
+    }
+
+    private void fillDate(CustomerDTO customerDTO) {
+        txtId.setText(customerDTO.getCustId());
+        txtName.setText(customerDTO.getCustName());
+        txtNic.setText(customerDTO.getNic());
+        txtAddress.setText(customerDTO.getAddress());
+        txtEmail.setText(customerDTO.getEmail());
+        txtContactNo.setText(customerDTO.getContactno());
     }
 
     public void txtCustomerIDOnKeyReleased(KeyEvent keyEvent) {

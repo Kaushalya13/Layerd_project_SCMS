@@ -2,11 +2,8 @@ package lk.ijse.scms.bo.custom.impl;
 
 import lk.ijse.scms.bo.custom.VehicleBO;
 import lk.ijse.scms.dao.DAOFactory;
-import lk.ijse.scms.dao.custom.UserDAO;
 import lk.ijse.scms.dao.custom.VehicleDAO;
-import lk.ijse.scms.dto.UserDTO;
 import lk.ijse.scms.dto.VehicleDTO;
-import lk.ijse.scms.entity.User;
 import lk.ijse.scms.entity.Vehicle;
 
 import java.sql.SQLException;
@@ -21,7 +18,8 @@ public class VehicleBOImpl implements VehicleBO {
         ArrayList<VehicleDTO> allVehicle= new ArrayList<>();
         ArrayList<Vehicle> all = vehicleDAO.getAll();
         for (Vehicle vehicle : all) {
-            allVehicle.add(new VehicleDTO(vehicle.getVehicle_id(),vehicle.getVehicle_name(),vehicle.getVehicle_type(),vehicle.getCustomer_id(),vehicle.getCompany_id(),vehicle.getReceive_date(),vehicle.getReturn_date(),vehicle.getStatus()));
+            allVehicle.add(new VehicleDTO(vehicle.getVehicle_id(),vehicle.getVehicle_name(),vehicle.getVehicle_type(),vehicle.getCustomer_id(),vehicle.getCompany_id(),
+                    vehicle.getReceive_date(),vehicle.getReturn_date(),vehicle.getStatus()));
         }
         return allVehicle;
     }

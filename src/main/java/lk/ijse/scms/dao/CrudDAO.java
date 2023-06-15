@@ -1,5 +1,7 @@
 package lk.ijse.scms.dao;
 
+import lk.ijse.scms.dto.VehicleDTO;
+
 import java.sql.SQLException;
 import java.util.ArrayList;
 
