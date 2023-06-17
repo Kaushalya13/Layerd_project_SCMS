@@ -1,4 +1,8 @@
 package lk.ijse.scms.dao.custom;
 
-public interface OrderDetailsDAO {
+import lk.ijse.scms.dao.CrudDAO;
+import lk.ijse.scms.entity.OrderDetails;
+
+public interface OrderDetailsDAO extends CrudDAO<OrderDetails> {
+
 }

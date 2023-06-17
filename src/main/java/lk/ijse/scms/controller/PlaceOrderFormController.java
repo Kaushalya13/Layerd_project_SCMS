@@ -14,6 +14,11 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import lk.ijse.scms.bo.BOFactory;
+import lk.ijse.scms.bo.custom.PlaceOrderBO;
+import lk.ijse.scms.dao.DAOFactory;
+import lk.ijse.scms.dao.custom.OrderDAO;
+import lk.ijse.scms.dao.custom.VehicleDAO;
 import lk.ijse.scms.db.DBConnection;
 import lk.ijse.scms.dto.*;
 import lk.ijse.scms.dto.tm.PlaceOrderTM;
@@ -103,6 +108,9 @@ public class PlaceOrderFormController implements Initializable {
     private ObservableList<PlaceOrderTM> obList = FXCollections.observableArrayList();
     private EventHandler<ActionEvent> e;
 
+    OrderDAO orderDAO = (OrderDAO) DAOFactory.getDaoFactory().getDAO(DAOFactory.DAOTypes.ORDER);
+    PlaceOrderBO placeOrderBO = (PlaceOrderBO) BOFactory.getBoFactory().getBO(BOFactory.BOTypes.PLACE_ORDER);
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         setOrderDate();
@@ -144,18 +152,18 @@ public class PlaceOrderFormController implements Initializable {
 
     void loadItemCode() throws SQLException {
         ObservableList<String> list = FXCollections.observableArrayList();
-        itemDTOArrayList = ItemModel.View();
-        for (ItemDTO itemDTO : itemDTOArrayList){
-            list.add(itemDTO.getItemCode());
+        List<String> itemId = orderDAO.loadItemCode();
+        for (String item : itemId){
+            list.add(item);
         }
         cmbItemCode.setItems(list);
     }
 
     void loadCustomerId() throws SQLException {
         ObservableList<String> list = FXCollections.observableArrayList();
-        customerDTOArrayList = CustomerModel.View();
-        for (CustomerDTO customerDTO : customerDTOArrayList){
-            list.add(customerDTO.getCustId());
+        List<String> customerId = orderDAO.loadCustomerId();
+        for (String customer : customerId){
+            list.add(customer);
         }
         cmbCustomer_id.setItems(list);
     }
@@ -240,6 +248,7 @@ public class PlaceOrderFormController implements Initializable {
         loadFormContext.getChildren().add(load);
     }
 
+
     @FXML
     void btnPlaceOrderOnAction(ActionEvent event) throws SQLException, JRException {
         String oId = lblOrder_id.getText();
@@ -253,15 +262,16 @@ public class PlaceOrderFormController implements Initializable {
             CartDTO cartDTO = new CartDTO(placeOrderTM.getItemCode(), placeOrderTM.getUnitPrice(), placeOrderTM.getQty());
             cartDTOList.add(cartDTO);
         }
+        OrderDTO orderDTO = new OrderDTO(oId, custId, cartDTOList);
 
         try {
-            boolean isPlaced = PlaceOrderModel.placeOrder(oId, custId, cartDTOList);
+            boolean isPlaced = placeOrderBO.placeOrder(orderDTO);
             if (isPlaced){
                 new Alert(Alert.AlertType.CONFIRMATION, "Order Placed!").show();
             }else {
                 new Alert(Alert.AlertType.ERROR, "Order Not Placed!").show();
             }
-        }catch (SQLException e) {
+        }catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
             new Alert(Alert.AlertType.ERROR, "SQL Error!").show();
         }

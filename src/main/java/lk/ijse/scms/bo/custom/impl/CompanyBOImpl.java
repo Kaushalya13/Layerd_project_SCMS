@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class CompanyBOImpl implements CompanyBO {
+
     CompanyDAO companyDAO = (CompanyDAO) DAOFactory.getDaoFactory().getDAO(DAOFactory.DAOTypes.COMPANY);
 
     @Override

@@ -16,7 +16,6 @@ import lk.ijse.scms.db.DBConnection;
 import lk.ijse.scms.dto.EmployeeDTO;
 import lk.ijse.scms.dto.tm.EmployeeTM;
 import lk.ijse.scms.entity.Employee;
-import lk.ijse.scms.model.EmployeeModel;
 import lk.ijse.scms.util.Regex;
 import lk.ijse.scms.util.TextFields;
 

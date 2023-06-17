@@ -1,9 +1,12 @@
 package lk.ijse.scms.dao.custom.impl;
 
 import lk.ijse.scms.dao.custom.ItemDAO;
+import lk.ijse.scms.db.DBConnection;
 import lk.ijse.scms.entity.Item;
 import lk.ijse.scms.util.CrudUtil;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -44,5 +47,17 @@ public class ItemDAOImpl implements ItemDAO {
         rst.next();
         return new Item(id +"",rst.getString("itemType"),rst.getDouble("unitPrice"),rst.getInt("qtyOnStock"));
 
+    }
+
+    @Override
+    public boolean updateQTY(Item item) throws SQLException {
+        Connection con = DBConnection.getInstance().getConnection();
+        String sql = "UPDATE Item SET qtyOnStock = (qtyOnStock - ?) WHERE itemCode = ?";
+
+        PreparedStatement pstm = con.prepareStatement(sql);
+        pstm.setInt(1, item.getQtyOnStock());
+        pstm.setString(2, item.getItemCode());
+
+        return pstm.executeUpdate() > 0;
     }
 }

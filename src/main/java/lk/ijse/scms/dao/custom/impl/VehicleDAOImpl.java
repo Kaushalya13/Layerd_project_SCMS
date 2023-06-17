@@ -62,11 +62,11 @@ public class VehicleDAOImpl implements VehicleDAO {
         ArrayList<String> allCustomer = new ArrayList<>();
         ResultSet rst = CrudUtil.execute("SELECT customer_id FROM Customer");
         while (rst.next()){
-            String id = new String(rst.getString("customer_id"));
-            allCustomer.add(id);
-        }
-        return allCustomer;
+        String id = new String(rst.getString("customer_id"));
+        allCustomer.add(id);
     }
+        return allCustomer;
+}
 
     @Override
     public ArrayList<String> loadCompanyId() throws SQLException {
@@ -78,25 +78,4 @@ public class VehicleDAOImpl implements VehicleDAO {
         }
         return allCompany;
     }
-
-//    @Override
-//    public List<String> loadComboBox() throws SQLException {
-//        ArrayList<String> allCustomer = new ArrayList<>();
-//        ResultSet rst = CrudUtil.execute("SELECT customer_id FROM Customer");
-//        while (rst.next()){
-//            String id = new String(rst.getString("customer_id"));
-//            allCustomer.add(id);
-//        }
-//        return allCustomer;
-//    }
-//
-//    @Override
-//    public List<String> loadCompanyId() throws SQLException {
-//        ArrayList<String> allCompany = new ArrayList<>();
-//        ResultSet rst = CrudUtil.execute("SELECT company_id FROM Company");
-//        while (rst.next()){
-//
-//        }
-//        return null;
-//    }
 }

@@ -14,7 +14,7 @@ import lk.ijse.scms.bo.custom.CompanyBO;
 import lk.ijse.scms.db.DBConnection;
 import lk.ijse.scms.dto.CompanyDTO;
 import lk.ijse.scms.dto.tm.CompanyTM;
-import lk.ijse.scms.model.CompanyModel;
+
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
